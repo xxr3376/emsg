@@ -7,6 +7,7 @@ def environment(func):
     env.description = func.__doc__
     environments.append(env)
     func(env)
+    return func
 
 class Environment(object):
     def __init__(self, name):
