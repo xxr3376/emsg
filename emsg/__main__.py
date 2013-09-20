@@ -16,7 +16,8 @@ def main():
     args = parser.parse_args()
 
     sys.path.append(os.path.dirname(args.config))
-    execfile(args.config)
+    ns = {}
+    execfile(args.config, ns, ns)
 
     if args.generator:
         generator = args.generator
