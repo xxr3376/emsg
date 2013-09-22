@@ -50,11 +50,12 @@ IF /I NOT "%~1" == "/e" (
     GOTO endedit
 )
 
-SET _EMSG_TEMP=%TEMP%\_emsg.%RANDOM%.txt
+SET EMSG_TEMP=%TEMP%\_emsg.%RANDOM%.txt
 
-COPY $config %_EMSG_TEMP% & \
-%EDITOR% %_EMSG_TEMP% & \
-COPY %_EMSG_TEMP% $config & \
+COPY $config %EMSG_TEMP% & \
+%EDITOR% %EMSG_TEMP% & \
+COPY %EMSG_TEMP% $config & \
+SET "EMSG_TEMP=" & \
 CALL %0 -u & \
 EXIT /B
 
