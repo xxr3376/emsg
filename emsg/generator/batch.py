@@ -21,20 +21,38 @@ IF /I NOT "%~1" == "/?" (
 )
 
 ECHO %0 ENV [ENV...]
+ECHO %0 [-u^|--update]
+ECHO %0 [-e^|--edit]
 ECHO.
 $help
 EXIT /B
 
 :update
+IF /I NOT "%~1" == "-u" \
 IF /I NOT "%~1" == "--update" \
-IF /I NOT "%~1" == "/update" (
-    GOTO main
+IF /I NOT "%~1" == "/u" (
+    GOTO edit
 )
                            
 ECHO Updating Script...
 PUSHD $emsg_root
 "$python_exe" -m emsg --output "$output" "$config" & \
 POPD & \
+EXIT /B
+
+:edit
+IF /I NOT "%~1" == "-e" \
+IF /I NOT "%~1" == "--edit" \
+IF /I NOT "%~1" == "/e" (
+    GOTO main
+)
+
+SET _EMSG_TEMP=%TEMP%\_emsg.%RANDOM%.txt
+
+COPY $config %_EMSG_TEMP% & \
+%EDITOR% %_EMSG_TEMP% & \
+COPY %_EMSG_TEMP% $config & \
+CALL %0 -u & \
 EXIT /B
 
 :main
@@ -64,6 +82,7 @@ def generate(envs, args):
     }
 
     rst = template.substitute(**data)
+    rst = rst.replace('\n', os.linesep)
     if output == '-':
         sys.stdout.write(rst)
     else:
