@@ -17,21 +17,24 @@ IF /I NOT "%~1" == "" \
 IF /I NOT "%~1" == "-h" \
 IF /I NOT "%~1" == "--help" \
 IF /I NOT "%~1" == "/?" (
-    GOTO update
+    GOTO endhelp
 )
 
-ECHO %0 ENV [ENV...]
-ECHO %0 [-u^|--update]
-ECHO %0 [-e^|--edit]
+ECHO Environment Management Scripts
+ECHO.
+ECHO %0 [/F^|-f^|--force] ENV [ENV...]
+ECHO %0 [/U^|-u^|--update]
+ECHO %0 [/E^|-e^|--edit]
+ECHO %0 [/?^|-h^|--help]
 ECHO.
 $help
 EXIT /B
 
-:update
+:endhelp
 IF /I NOT "%~1" == "-u" \
 IF /I NOT "%~1" == "--update" \
 IF /I NOT "%~1" == "/u" (
-    GOTO edit
+    GOTO endupdate
 )
                            
 ECHO Updating Script...
@@ -40,11 +43,11 @@ PUSHD $emsg_root
 POPD & \
 EXIT /B
 
-:edit
+:endupdate
 IF /I NOT "%~1" == "-e" \
 IF /I NOT "%~1" == "--edit" \
 IF /I NOT "%~1" == "/e" (
-    GOTO main
+    GOTO endedit
 )
 
 SET _EMSG_TEMP=%TEMP%\_emsg.%RANDOM%.txt
@@ -55,15 +58,45 @@ COPY %_EMSG_TEMP% $config & \
 CALL %0 -u & \
 EXIT /B
 
-:main
+:endedit
+
+IF /I NOT "%~1" == "-f" \
+IF /I NOT "%~1" == "--force" \
+IF /I NOT "%~1" == "/f" (
+    GOTO endforce
+)
+
+SET EMSG_FORCE=1
+GOTO nextarg
+
+:endforce
+IF NOT "%EMSG_FORCE%" == "1" (
+    FOR %%E IN (%EMSG_ENVS%) DO (
+        IF /I "%~1" == "%%E" (
+            ECHO Environemnt `%%E' is already active
+            GOTO nextarg
+        )
+    )
+)
+
 $main
 
-TITLE %_ENVS%%~1
-SET "_ENVS=%_ENVS%%~1 "
+IF DEFINED EMSG_ENVS \
+IF NOT "%EMSG_ENVS:~40%" == "" (
+    PROMPT $$C%EMSG_ENVS%%~1$$F$$_$$P^>
+    GOTO endprompt
+)
+PROMPT $$C%EMSG_ENVS%%~1$$F $$P^>
+
+:endprompt
+SET "EMSG_ENVS=%EMSG_ENVS%%~1 "
 
 :nextarg
-IF "%2" == "" EXIT /B
+IF "%2" == "" GOTO cleanup
 CALL %0 %2 %3 %4 %5 %6 %7 %8 %9
+
+:cleanup
+SET "EMSG_FORCE="
 ''')
 
 def generate(envs, args):
