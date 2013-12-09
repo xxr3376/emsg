@@ -38,7 +38,7 @@ IF /I NOT "%~1" == "/u" (
 )
                            
 ECHO Updating Script...
-PUSHD $emsg_root
+PUSHD "$emsg_root"
 "$python_exe" -m emsg --output "$output" "$config" & \
 POPD & \
 EXIT /B
@@ -52,9 +52,9 @@ IF /I NOT "%~1" == "/e" (
 
 SET EMSG_TEMP=%TEMP%\_emsg.%RANDOM%.txt
 
-COPY $config %EMSG_TEMP% & \
+COPY "$config" %EMSG_TEMP% & \
 %EDITOR% %EMSG_TEMP% & \
-COPY %EMSG_TEMP% $config & \
+COPY %EMSG_TEMP% "$config" & \
 SET "EMSG_TEMP=" & \
 CALL %0 -u & \
 EXIT /B
